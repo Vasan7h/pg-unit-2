@@ -1,0 +1,73 @@
+in this checking for err < 2% of setpoint 
+and make stable_loop_init_flag = 1
+
+at entering before PID loop checking for the above flag and make
+if(stable_loop_init_flag =1)
+prev_pps_dac_value = 0 
+
+this is done to make II filtering
+if the err is < 2 % setpoint
+flow enters into stable PID loop
+at first time getting into PID loop
+don't make IIR filtering
+
+
+because we're trying to reduce err as +/- 1 of setpoint
+so for that we are incrementing or decrementing the DAC value
+
+error_cal = (pow_set_pt - final_forward_power);
+printf("Err in stable PID: %lf\n", error_cal);
+osci_fix = ((((int32_t)(abs(error_cal))) / ((int32_t)error_cal))); // err sign
+tol = (0.00275 * pow_set_pt) + 1.15;                               // 200 w +/-1.8 w to 600w +/- 2.8W
+if (pow_set_pt <= 100)
+{
+    if ((abs(error_cal) > 2) && (!ref_fault_flag))
+        { // err > 2 W
+            printf("offset   %lf\n", osci_fix);
+            pps_dac_value = pps_dac_value + osci_fix; // adding offset to acheive desired o/p
+                                                                      // prev_pps_dac_value = pps_dac_value; // storing dac val
+        }
+}
+ else
+{
+    if (((fabs(error_cal)) >= tol) && (!ref_fault_flag))
+        {
+            printf("offset   %lf\n", osci_fix);
+            pps_dac_value = pps_dac_value + osci_fix; // adding offset to acheive desired o/p
+            // prev_pps_dac_value = pps_dac_value; // storing dac val
+        }
+}                  
+
+
+
+then updating it to read forward power
+Volt_cur_forw_ref_load_Set(DAC_spi_fd, DAC_DA2_SEL_CMD, spi1_trx, pps_dac_value);
+
+the IIr filtering happens when the prev_pps_dac_value and prev_pps_dac_value are same
+which means the ADC in meter producing some noise
+to rectify this we are making IIR filter
+
+if (prev_pps_dac_value == pps_dac_value)
+{
+    final_forward_power = (Prev_final_forward_power + final_forward_power) / 2;
+    printf("filtering noise\n");
+}
+
+calculating fp,rp,lp
+updating to DB25
+
+
+dac_set(DAC_forw_ref_pow_spi_fd, final_forward_power, final_reflected_power, load_power);
+
+and also saving the current forw val for filtering in the next execution
+
+
+Prev_final_forward_power = final_forward_power;
+prev_pps_dac_value = pps_dac_value; // storing dac val
+
+
+the  stable_loop_init_flag becomes 0
+
+
+PROBLEM :
+

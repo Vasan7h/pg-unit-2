@@ -1,0 +1,116 @@
+jan 25 
+the problem is the meter doesn't read the actual power 
+for the particular DAC value
+
+log 
+
+Temperature : 33.00 °C
+I AM ENTERING FOR FIRST TIME
+Setting 501 Watt
+forw pow in check:    0.000012 W 
+Err: 500.999988
+ncflag 0
+abs_error 500
+dac val after const 229
+raw forw 2000.000000
+forw pow :    210.814560 W 
+raw ref 1984.000000
+Ref pow:     103.287421 W
+
+Temperature : 33.00 °C
+
+Setting 501 Watt
+forw pow in check:    210.814560 W 
+Err: 290.185440
+ncflag 0
+abs_error 290
+ PPS PID value: 115
+dac val after const 117
+raw forw 1846.000000
+forw pow :    69.799438 W 
+raw ref 1820.000000
+Ref pow:     34.551062 W
+-------------------------------------------------------------------------------------------------------------------
+ASSUMED SOLUTION:
+
+SOL 1:
+
+after acheived error in range of 50 to 100
+
+make DAC as last value for another 1 execution
+
+then go to normal flow
+
+-------------------------------------------------------------------------------------------------------------------
+SOL 2:
+
+after acheived  error in range of 50 to 100
+
+make DAC as 0 once 
+
+then go to normal flow
+---------------------------------------------------------------------------------------------------------------------
+SOL 3:
+
+after acheived  error in range of 50 to 100
+save the previous DAC val in another variable say DAC_at_err_50_to_100
+
+make DAC as 0 once
+
+then give DAC = DAC_at_err_50_to_100
+--------------------------------------------------------------------------------------------------------------------
+
+REASON FOR PROBLEM :
+now they are operating in burn cycle mode (10s ON 10s OFF)
+at this moment there may be a little bit change of impedance 
+we are already pushing the DAC value above its level to be expected for that setpoint
+
+______________________________________________________________________________________________________________________
+
+UPDATING ASSUMED SOL 1 ......
+
+checking for range of 100 Watt
+eg: setpt 500 
+if forw in b/w 400 to 460 
+
+ if ((error_cal < 150) && (error_cal > 50)) 
+{
+    stay_max_DAC_flag = 1;
+}
+
+the previous DAC val is maintained for 1 count
+
+if (stay_max_DAC_flag)
+{
+    ps_dac_value = prev_pps_dac_value; //DAC val unchanged for 1 cycle
+    stay_max_DAC_flag = 0;
+}
+
+
+______________________________________________________________________________________________________________________
+
+UPDATING ASSUMED SOL 2 ......
+
+if (stay_max_DAC_flag)
+{
+    pps_dac_value =0 ; //SOL 2
+    stay_max_DAC_flag = 0;
+}
+
+______________________________________________________________________________________________________________________
+
+UPDATING ASSUMED SOL 3 ....
+
+dac_at_err_50_to_100 =pps_dac_value;  //SOL 3
+
+if (stay_max_DAC_flag)
+{
+                        
+    pps_dac_value=0;   //SOL 3
+    if(count >= 2)
+    {
+        stay_max_DAC_flag = 0;
+        pps_dac_value =dac_at_err_50_to_100;
+    }
+     count++;
+}
