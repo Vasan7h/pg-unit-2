@@ -79,7 +79,7 @@ void Read_forward_power(void);
 void Read_reflected_power(void);
 void ref_power_condition_check(void);
 void pid_overflow_fix(void);
-void manual_absl_fun(void); //manually making modulus operation
+void manual_absl_func(void); //manually making modulus operation
 
 
 #endif
