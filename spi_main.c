@@ -131,6 +131,7 @@ int spi_main()
                 if ((error_cal < 100) && (error_cal > 50)) 
                 {
                     stay_max_DAC_flag = 1;
+                    count=0;
                 }
                 if (((abs(error_cal)) > (0.02 * pow_set_pt)) && (!ref_fault_flag))
                 {
@@ -143,14 +144,15 @@ int spi_main()
                     if (stay_max_DAC_flag)
                     {
                         pps_dac_value = prev_pps_dac_value; //SOL 1
+                        printf("IN SOL 1 for %d counts\n",count);
                         //pps_dac_value =0 ; //SOL 2
-                        /*pps_dac_value=0;   //SOL 3
+                        //pps_dac_value=0;   //SOL 3
                         if(count >= 2)
                         {
                         stay_max_DAC_flag = 0;
-                        pps_dac_value =dac_at_err_50_to_100;
+                        //pps_dac_value =dac_at_err_50_to_100;
                         }
-                        count++;*/
+                        count++;
                     }
                     else
                     {
