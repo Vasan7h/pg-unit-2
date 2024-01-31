@@ -130,6 +130,14 @@ int spi_main()
                 printf("Err: %lf\n", error_cal);
 
                 printf("ncflag %d\n", stable_loop_init_flag);
+                if (stable_loop_init_flag)
+                {
+                    prev_pps_dac_value = 0;
+                }
+                // if ((error_cal < 100) && (error_cal > 50)) 
+                // {
+                //     stay_max_DAC_flag = 1;
+                // }
 
                 if (((abs(error_cal)) > (0.02 * pow_set_pt)) && (!ref_fault_flag))
                 {
@@ -150,21 +158,21 @@ int spi_main()
 
                         // storing previous error
                         // pps_dac_value_PID = (int16_t)(P_control + I_control + D_control); // casting double to int
-                        printf(" PPS PID value: %d\n", pps_dac_value_PID);
-                        err_sign = ((((int32_t)(abs(error_cal))) / ((int32_t)error_cal)));
-                        if ((abs(error_cal) > (0.03 * pow_set_pt)) && (!offset_flag))
-                        {
-                            toler_set = 2; // changed from 1 to 2
-                            condition_check = (toler_set)*err_sign;
-                        }
-                        else
-                        {
-                            toler_set = 1; // changed from 1 to 2
-                            condition_check = (toler_set)*err_sign;
-                        }
+                        // printf(" PPS PID value: %d\n", pps_dac_value_PID);
+                        // err_sign = ((((int32_t)(abs(error_cal))) / ((int32_t)error_cal)));
+                        // if ((abs(error_cal) > (0.03 * pow_set_pt)) && (!offset_flag))
+                        // {
+                        //     toler_set = 2; // changed from 1 to 2
+                        //     condition_check = (toler_set)*err_sign;
+                        // }
+                        // else
+                        // {
+                        //     toler_set = 1; // changed from 1 to 2
+                        //     condition_check = (toler_set)*err_sign;
+                        // }
 
                         // adding offset to acheive desired power
-                        pps_dac_value = pps_dac_value + condition_check;
+                        //pps_dac_value = pps_dac_value + condition_check;
                         pid_overflow_fix();
                         // in order to create an overshoot
                     }
@@ -178,6 +186,18 @@ int spi_main()
 
                     Read_forward_power();
                     Read_reflected_power();
+                    error_cal = (pow_set_pt - final_forward_power);
+
+                    // int abserr=(int)(abs(error_cal));
+                    // printf("abserr %lf\n",abserr);
+                    
+                    printf("Err: %lf\n", error_cal);
+                    if ((int)error_cal <= (int)(0.02 * pow_set_pt))
+                    {
+                        printf("abs_error %d\n", (abs(error_cal)));
+                        stable_loop_init_flag = 1;
+                    }
+                }
                 }
 
                 else
