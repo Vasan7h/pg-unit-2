@@ -197,7 +197,7 @@ int spi_main()
                         printf("abs_error %d\n", (abs(error_cal)));
                         stable_loop_init_flag = 1;
                     }
-                }
+                
                 }
 
                 else
