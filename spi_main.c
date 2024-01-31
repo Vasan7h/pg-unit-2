@@ -56,7 +56,7 @@ int power_pps_dac_value;
 float a_dc;
 int count=1; //SOL 3
 int16_t pps_dac_value_PID;
-uint8_t dac_at_err_50_to_100 
+uint8_t dac_at_err_50_to_100;
 uint8_t pps_dac_value; // DAC value
 int pps_dac_value_f;
 int stay_max_DAC_flag = 0;
